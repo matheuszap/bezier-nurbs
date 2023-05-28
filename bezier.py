@@ -9,7 +9,6 @@ height = 600
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Curva de Bézier")
 
-# Cores
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
@@ -43,21 +42,21 @@ GREEN = (0, 255, 0)
 # B(t) = P0 * 0.03125 + P1 * 0.15625 + P2 * 0.3125 + P3 * 0.3125 + P4 * 0.15625 + P5 * 0.03125 = (319.375, 287.5)
 
 # Função para calcular a curva Bezier
-def bezier_curve(points, t):
-    n = len(points) - 1
-    curve = np.zeros(2)
+def curva_bezier(pontosControle, t):
+    n = len(pontosControle) - 1
+    curva = np.zeros(2)
     
     for i in range(n + 1):
-        curve += comb(n, i) * (1 - t) ** (n - i) * t ** i * points[i]
+        curva += comb(n, i) * (1 - t) ** (n - i) * t ** i * pontosControle[i]
     
-    return curve
+    return curva
 
 # Função para calcular os coeficientes binomiais
 def comb(n, k):
     return np.math.factorial(n) / (np.math.factorial(k) * np.math.factorial(n - k))
 
 # Pontos de controle da curva Bezier (Grau da curva será núm. de pontos + 1)
-points = np.array([[100, 400], [200, 200], [300, 500], [500, 200], [700, 100], [800, 300]])
+pontosControle = np.array([[100, 400], [200, 200], [300, 500], [500, 200], [700, 100], [800, 300]])
 
 bezier = True
 while bezier:
@@ -68,16 +67,16 @@ while bezier:
     screen.fill(BLACK)
     
     # Desenho dos pontos de controle
-    for point in points:
-        pygame.draw.circle(screen, GREEN, point, 5)
+    for ponto in pontosControle:
+        pygame.draw.circle(screen, GREEN, ponto, 5)
 
     # Desenho das retas entre os pontos de controle
-    pygame.draw.lines(screen, GREEN, False, points, 1)
+    pygame.draw.lines(screen, GREEN, False, pontosControle, 1)
     
     # Desenho da curva Bezier
     t = np.linspace(0, 1, 100)
-    curve = np.array([bezier_curve(points, i) for i in t])
-    pygame.draw.lines(screen, RED, False, curve.astype(int), 2)
+    curva = np.array([curva_bezier(pontosControle, i) for i in t])
+    pygame.draw.lines(screen, RED, False, curva.astype(int), 2)
     
     pygame.display.flip()
 
