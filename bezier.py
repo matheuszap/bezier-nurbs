@@ -51,12 +51,34 @@ def curva_bezier(pontosControle, t):
     
     return curva
 
+# Função para calcular a curva NURBS
+def curva_nurbs(pontosControle, pesos, t):
+    n = len(pontosControle) - 1
+    p = 5  # Grau da curva NURBS
+
+    numPontos = len(t)
+    curva = np.zeros((numPontos, 2))
+
+    for i in range(n + 1):
+        blend = comb(p, i) * (1 - t[:, np.newaxis]) ** (p - i) * t[:, np.newaxis] ** i  # Coeficiente binomial
+        curva += blend * pesos[i] * pontosControle[i, :]
+    
+    curva /= np.sum(curva, axis=0)  # Normalização dos pontos
+    
+    return curva
+
+
+
+
 # Função para calcular os coeficientes binomiais
 def comb(n, k):
     return np.math.factorial(n) / (np.math.factorial(k) * np.math.factorial(n - k))
 
+
 # Pontos de controle da curva Bezier (Grau da curva será núm. de pontos + 1)
 pontosControle = np.array([[100, 400], [200, 200], [300, 500], [500, 200], [700, 100], [800, 300]])
+pontosControleNurbs = np.array([[150, 350], [250, 150], [350, 450], [550, 150], [750, 50], [850, 250]])
+pesosNurbs = np.array([1, 1, 1, 1, 1, 1])
 
 bezier = True
 while bezier:
@@ -66,17 +88,28 @@ while bezier:
     
     screen.fill(BLACK)
     
-    # Desenho dos pontos de controle
+    # Desenho dos pontos de controle Bézier
     for ponto in pontosControle:
         pygame.draw.circle(screen, GREEN, ponto, 5)
 
-    # Desenho das retas entre os pontos de controle
+    # Desenho dos pontos de controle Nurbs
+    for ponto in pontosControleNurbs:
+        pygame.draw.circle(screen, GREEN, ponto, 5)
+
+    # Desenho das retas entre os pontos de controle Bézier
     pygame.draw.lines(screen, GREEN, False, pontosControle, 1)
+
+    # Desenho das retas entre os pontos de controle Nurbs
+    pygame.draw.lines(screen, GREEN, False, pontosControleNurbs, 1)
     
     # Desenho da curva Bezier
     t = np.linspace(0, 1, 100)
-    curva = np.array([curva_bezier(pontosControle, i) for i in t])
-    pygame.draw.lines(screen, RED, False, curva.astype(int), 2)
+    curvaBezier = np.array([curva_bezier(pontosControle, i) for i in t])
+    pygame.draw.lines(screen, RED, False, curvaBezier.astype(int), 2)
+
+    curvaNurbs = curva_nurbs(pontosControle, pesosNurbs, t)
+    curvaNurbs *= np.array([width, height])  # Ajustando para as dimensões da janela
+    pygame.draw.lines(screen, RED, False, curvaNurbs.astype(int), 2)
     
     pygame.display.flip()
 
