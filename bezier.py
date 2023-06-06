@@ -40,7 +40,6 @@ def curva_nurbs(pontosControle, pesos, t):
     
     return curva
 
-
 # Função para calcular os coeficientes binomiais
 def comb(n, k):
     return np.math.factorial(n) / (np.math.factorial(k) * np.math.factorial(n - k))
@@ -49,34 +48,57 @@ def comb(n, k):
 # Pontos de controle da curva Bezier (Grau da curva será núm. de pontos + 1)
 pontosControleBezier = np.array([[100, 400], [200, 200], [300, 500], [500, 200], [700, 100], [800, 300]])
 pontosControleNurbs = np.array([[800, 300], [900, 200], [1000, 400], [1100, 200], [1200, 100], [1300, 300]])
-pesosNurbs = np.array([20, 30, 50, 10, 35, 20])
+pesosNurbs = np.array([10, 10, 10, 10, 10, 10])
+
+zoom = 1.0
+zoom_in_key_pressed = False
+zoom_out_key_pressed = False
 
 bezier = True
 while bezier:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             bezier = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_z:
+                zoom_in_key_pressed = True
+            elif event.key == pygame.K_x:
+                zoom_out_key_pressed = True
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_z:
+                zoom_in_key_pressed = False
+            elif event.key == pygame.K_x:
+                zoom_out_key_pressed = False
+    
+    if zoom_in_key_pressed:
+        zoom *= 1.01  # Aumenta o zoom em 10%
+    elif zoom_out_key_pressed:
+        zoom /= 1.01 # Diminui o zoom em 10%
     
     screen.fill(BLACK)
     
     # Desenho dos pontos de controle Bézier
-    for ponto in pontosControleBezier:
-        pygame.draw.circle(screen, GREEN, ponto, 5)
+    #for ponto in pontosControleBezier:
+    #    pygame.draw.circle(screen, GREEN, (int(ponto[0] * zoom), int(ponto[1] * zoom)), 5)
 
     # Desenho dos pontos de controle Nurbs
     for ponto in pontosControleNurbs:
-        pygame.draw.circle(screen, BLUE, ponto, 5)
+        pygame.draw.circle(screen, BLUE, (int(ponto[0] * zoom), int(ponto[1] * zoom)), 5)
+
+    # Ajuste da escala dos pontos de controle para o zoom
+    pontosControleBezier_scaled = pontosControleBezier * zoom
+    pontosControleNurbs_scaled = pontosControleNurbs * zoom
 
     # Desenho das retas entre os pontos de controle Bézier
-    pygame.draw.lines(screen, GREEN, False, pontosControleBezier, 1)
+    #pygame.draw.lines(screen, GREEN, False, pontosControleBezier_scaled.astype(int), 1)
 
     # Desenho das retas entre os pontos de controle Nurbs
-    pygame.draw.lines(screen, BLUE, False, pontosControleNurbs, 1)
+    pygame.draw.lines(screen, BLUE, False, pontosControleNurbs_scaled.astype(int), 1)
     
     # Desenho da curva Bezier
     t = np.linspace(0, 1, 100)
-    curvaBezier = np.array([curva_bezier(pontosControleBezier, i) for i in t])
-    pygame.draw.lines(screen, RED, False, curvaBezier.astype(int), 2)
+    #curvaBezier = np.array([curva_bezier(pontosControleBezier, i) for i in t])
+    #pygame.draw.lines(screen, RED, False, (curvaBezier * zoom).astype(int), 2)
 
     curvaNurbs = curva_nurbs(pontosControleNurbs, pesosNurbs, t)
     min_x = np.min(curvaNurbs[:, 0])
@@ -88,13 +110,12 @@ while bezier:
     curvaNurbs[:, 0] = (curvaNurbs[:, 0] - min_x) / (max_x - min_x)
     curvaNurbs[:, 1] = (curvaNurbs[:, 1] - min_y) / (max_y - min_y)
 
-    # Multiplicação pelo tamanho da janela
-    curvaNurbs[:, 0] *= width
-    curvaNurbs[:, 1] *= height
+    # Multiplicação pelo tamanho da janela e pelo fator de zoom
+    curvaNurbs[:, 0] *= width * zoom
+    curvaNurbs[:, 1] *= height * zoom
 
     pygame.draw.lines(screen, RED, False, curvaNurbs.astype(int), 2)
 
-    
     pygame.display.flip()
 
 pygame.quit()
