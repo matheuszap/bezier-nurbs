@@ -1,1 +1,1 @@
-# bezier-curve
+# bezier-nurbs
