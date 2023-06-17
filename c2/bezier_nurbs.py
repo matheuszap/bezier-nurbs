@@ -7,7 +7,7 @@ pygame.init()
 width = 1000
 height = 600
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Continuidade C1 (Bézier e NURBS)")
+pygame.display.set_caption("Continuidade G2 (Bézier e NURBS)")
 
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -52,6 +52,17 @@ zoom = 0.5
 zoom_in = False
 zoom_out = False
 
+# Calcular os ângulos dos pontos PN1, PN2 e PN3
+angulo_PN1 = np.arctan2(pontosControleNurbs[1][1] - pontosControleNurbs[0][1], pontosControleNurbs[1][0] - pontosControleNurbs[0][0])
+angulo_PN2 = np.arctan2(pontosControleNurbs[2][1] - pontosControleNurbs[1][1], pontosControleNurbs[2][0] - pontosControleNurbs[1][0])
+angulo_PN3 = np.arctan2(pontosControleNurbs[3][1] - pontosControleNurbs[2][1], pontosControleNurbs[3][0] - pontosControleNurbs[2][0])
+
+# Ajustar as coordenadas dos pontos PB4, PB5 e PB6 com base nos ângulos
+comprimento = 200  # Comprimento do segmento para ajuste dos pontos
+pontosControleBezier[3] = pontosControleNurbs[2] + np.array([comprimento * np.cos(angulo_PN2), comprimento * np.sin(angulo_PN2)])
+pontosControleBezier[4] = pontosControleNurbs[2] - np.array([comprimento * np.cos(angulo_PN2), comprimento * np.sin(angulo_PN2)])
+pontosControleBezier[5] = pontosControleNurbs[3] + np.array([comprimento * np.cos(angulo_PN3), comprimento * np.sin(angulo_PN3)])
+
 bezier = True
 while bezier:
     for event in pygame.event.get():
@@ -92,7 +103,7 @@ while bezier:
         screen.blit(text, (int(ponto[0]) - 30, int(ponto[1]) - 20))
 
     # Nomear o ponto de conexão como "C1"
-    text = pygame.font.SysFont('Arial', 12).render("C1", True, YELLOW)
+    text = pygame.font.SysFont('Arial', 12).render("C2", True, YELLOW)
     text_rect = text.get_rect(center=((pontosControleBezier_scaled[-1][0] + pontosControleNurbs_scaled[0][0]) / 2 + 5, (pontosControleBezier_scaled[-1][1] + pontosControleNurbs_scaled[0][1]) / 2 - 30))
     screen.blit(text, text_rect)
     
@@ -105,7 +116,7 @@ while bezier:
     # Definir o último ponto de controle da curva Bezier igual ao primeiro ponto de controle da curva NURBS
     pontosControleBezier[-1] = pontosControleNurbs[0]
 
-    # Ajustar o penúltimo ponto de controle da curva Bezier para garantir a continuidade G1
+    # Ajustar o penúltimo ponto de controle da curva Bezier para garantir a continuidade C1
     pontosControleBezier[-2] = 2 * pontosControleNurbs[0] - pontosControleNurbs[1]
 
     # Desenhar uma linha reta conectando os dois pontos
