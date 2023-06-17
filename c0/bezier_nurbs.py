@@ -48,7 +48,7 @@ pontosControleBezier = np.array([[100, 400], [200, 200], [300, 500], [500, 200],
 pontosControleNurbs = np.array([[800, 300], [900, 200], [1000, 400], [1100, 200], [1200, 100], [1300, 300]])
 pesosNurbs = np.array([1, 1, 1.5, 1, 1, 1])
 
-zoom = 0.5
+zoom = 0.7
 zoom_in = False
 zoom_out = False
 
