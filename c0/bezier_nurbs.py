@@ -13,6 +13,7 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
 
 # Função para calcular a curva Bezier
 def curva_bezier(pontosControle, t):
@@ -45,7 +46,7 @@ def comb(n, k):
 # Pontos de controle da curva Bezier (Grau da curva será núm. de pontos + 1)
 pontosControleBezier = np.array([[100, 400], [200, 200], [300, 500], [500, 200], [700, 100], [800, 300]])
 pontosControleNurbs = np.array([[800, 300], [900, 200], [1000, 400], [1100, 200], [1200, 100], [1300, 300]])
-pesosNurbs = np.array([1, 1, 1, 1, 1, 1])
+pesosNurbs = np.array([1, 1, 1.5, 1, 1, 1])
 
 zoom = 0.5
 zoom_in = False
@@ -79,12 +80,21 @@ while bezier:
     pontosControleNurbs_scaled = pontosControleNurbs * zoom
 
     # Desenho dos pontos de controle Bézier
-    for ponto in pontosControleBezier_scaled:
+    for i, ponto in enumerate(pontosControleBezier_scaled):
         pygame.draw.circle(screen, GREEN, (int(ponto[0]), int(ponto[1])), 5)
+        text = pygame.font.SysFont('Arial', 12).render(f'PB{i+1}', True, GREEN)
+        screen.blit(text, (int(ponto[0]) + 5, int(ponto[1]) + 5))
 
     # Desenho dos pontos de controle Nurbs
-    for ponto in pontosControleNurbs_scaled:
+    for i, ponto in enumerate(pontosControleNurbs_scaled):
         pygame.draw.circle(screen, BLUE, (int(ponto[0]), int(ponto[1])), 5)
+        text = pygame.font.SysFont('Arial', 12).render(f'PN{i+1}', True, BLUE)
+        screen.blit(text, (int(ponto[0]) - 38, int(ponto[1]) - 20))
+
+    # Nomear o ponto de conexão como "C1"
+    text = pygame.font.SysFont('Arial', 12).render("C0", True, YELLOW)
+    text_rect = text.get_rect(center=((pontosControleBezier_scaled[-1][0] + pontosControleNurbs_scaled[0][0]) / 2 + 5, (pontosControleBezier_scaled[-1][1] + pontosControleNurbs_scaled[0][1]) / 2 - 30))
+    screen.blit(text, text_rect)
 
     # Desenho das retas entre os pontos de controle Bézier  
     pygame.draw.lines(screen, GREEN, False, pontosControleBezier_scaled.astype(int), 1)
